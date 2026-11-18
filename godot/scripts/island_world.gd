@@ -150,21 +150,23 @@ func _make_tree_mesh(tropical: bool) -> ArrayMesh:
 	trunk.top_radius = 0.16 if tropical else 0.12
 	trunk.bottom_radius = 0.24 if tropical else 0.19
 	trunk.height = 5.0 if tropical else 7.0
-	var trunk_instance := MeshInstance3D.new()
-	trunk_instance.mesh = trunk
 	var trunk_surface := SurfaceTool.new()
 	trunk_surface.create_from(trunk, 0)
 	var trunk_array := trunk_surface.commit()
-	var foliage := SphereMesh.new() if tropical else CylinderMesh.new()
+	var foliage_mesh: Mesh
 	if tropical:
-		foliage.radius = 2.0
-		foliage.height = 2.0
+		var crown := SphereMesh.new()
+		crown.radius = 2.0
+		crown.height = 2.0
+		foliage_mesh = crown
 	else:
-		foliage.top_radius = 0.05
-		foliage.bottom_radius = 2.0
-		foliage.height = 5.0
+		var cone := CylinderMesh.new()
+		cone.top_radius = 0.05
+		cone.bottom_radius = 2.0
+		cone.height = 5.0
+		foliage_mesh = cone
 	var foliage_surface := SurfaceTool.new()
-	foliage_surface.create_from(foliage, 0)
+	foliage_surface.create_from(foliage_mesh, 0)
 	var foliage_array := foliage_surface.commit()
 	var combined := ArrayMesh.new()
 	combined.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, trunk_array.surface_get_arrays(0))
