@@ -7,7 +7,7 @@ const LOOK_SENSITIVITY := 0.004
 
 var move_input := Vector2.ZERO
 var camera_yaw := 0.0
-var camera_pitch := -0.16
+var camera_pitch := 0.16
 var hud: Control
 var camera_pivot: Node3D
 var body_mesh: Node3D
@@ -92,7 +92,6 @@ func _build_camera() -> void:
 	camera.current = true
 	camera.fov = 72.0
 	camera_pivot.add_child(camera)
-	camera.look_at_from_position(camera.position, Vector3(0, 0.3, 0), Vector3.UP)
 	camera.position = Vector3(0, 2.1, 6.8)
 	camera_pivot.rotation.y = camera_yaw
 	camera.rotation.x = camera_pitch
