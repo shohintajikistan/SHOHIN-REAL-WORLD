@@ -1,27 +1,40 @@
 # SHOHIN REAL WORLD
 
-A mobile-friendly 3D open-world prototype built with HTML, JavaScript and Three.js.
+**SHOHIN REAL WORLD** is a mobile-first 3D survival game prototype built with Three.js.
 
 ## Play
-After the GitHub Pages deployment completes, open:
+
 https://shohintajikistan.github.io/SHOHIN-REAL-WORLD/
 
+GitHub Pages publishes the browser game directly from `index.html`. The active game runtime is Three.js; the old Godot project files are retained in the repository as an archive and are not used by the website deployment.
+
+## Current gameplay
+
+- Procedural outdoor island environment with forest, lake, rocks and wildlife.
+- Third-person player, follow camera, touch joystick, camera drag and jump.
+- Survival meters: health, hunger and thirst.
+- Gather wood, stone and fiber; collect food.
+- Craft a stone axe and pickaxe.
+- Build a campfire and a basic hut.
+- Daylight cycle and ambient world atmosphere.
+
 ## Controls
-- Touch joystick: move
-- Drag on the world: rotate the camera
-- Jump: jump
-- WORLD +: open the world-building command panel
 
-## World commands
-Try: лес, дом, озеро, животные, люди, камни.
+- Touch joystick: move.
+- Drag the open 3D view: rotate the camera.
+- Jump: jump.
+- Gather: collect nearby resources or drink at the lake.
+- Resources, Craft and Build: open the corresponding panels.
 
-## Notes
-This is an early prototype. It uses procedural objects and simple wandering behaviors; it is not yet a full-scale simulation or connected generative AI. Three.js is loaded from jsDelivr, so an internet connection is required to load the game.
+## Technology
 
-## Project
-SHOHIN TAJIKISTAN
+- Three.js 0.180.0 loaded as an ES module from jsDelivr.
+- Procedural geometry and materials for the current prototype.
+- GitHub Actions + GitHub Pages for publishing.
+- No server, account, or API key is required for the current prototype. An internet connection is required to load Three.js from the CDN.
 
+## Development notes
 
-## Godot 4 migration
+This is an early playable prototype, not a finished AAA-scale simulation. The repository is being migrated to a Three.js-first workflow. The previous Godot source is retained for reference only; it is no longer built or published by the Pages workflow.
 
-A new Godot 4.4.1 project is being prepared in [`godot/`](godot/README.md). The existing browser prototype remains available while the Godot project is validated. The first Godot milestone generates a 4 km × 4 km island foundation with ocean, varied terrain and mixed forest zones. GitHub Actions validates the project automatically. Android export and the playable mobile controls will be added after this foundation passes validation.
+Project: **SHOHIN TAJIKISTAN**.
