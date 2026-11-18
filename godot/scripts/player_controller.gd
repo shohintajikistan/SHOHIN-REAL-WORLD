@@ -14,6 +14,7 @@ var camera_pivot: Node3D
 var body_mesh: Node3D
 var inventory := {"wood": 0, "stone": 0, "fiber": 0, "stick": 0, "berries": 0}
 var has_axe := false
+var has_pickaxe := false
 var health := 100.0
 var hunger := 100.0
 var thirst := 100.0
@@ -132,6 +133,10 @@ func _on_action_requested(action: String) -> void:
 			_craft_tool()
 		"fire":
 			_build_campfire()
+		"pick":
+			_craft_pickaxe()
+		"eat":
+			_eat_berries()
 		"jump":
 			if is_on_floor():
 				velocity.y = JUMP_VELOCITY
@@ -150,6 +155,10 @@ func _input(event: InputEvent) -> void:
 			_build_structure("raft")
 		elif event.keycode == KEY_3:
 			_craft_tool()
+		elif event.keycode == KEY_4:
+			_craft_pickaxe()
+		elif event.keycode == KEY_5:
+			_eat_berries()
 		_update_hud()
 
 func _gather_nearest() -> void:
@@ -166,7 +175,17 @@ func _gather_nearest() -> void:
 		_show_message("Подойди ближе к дереву или камням")
 		return
 	var kind: String = nearest.get_meta("resource_type", "wood")
+	if kind == "stone" and not has_pickaxe:
+		_show_message("Для добычи камня сначала изготовь кирку")
+		return
+	if kind == "wood" and not has_axe:
+		_show_message("Для рубки дерева нужен каменный топор")
+		return
 	var amount: int = nearest.get_meta("amount", 1)
+	if kind == "wood" and has_axe:
+		amount += 2
+	if kind == "stone" and has_pickaxe:
+		amount += 2
 	inventory[kind] = int(inventory.get(kind, 0)) + amount
 	nearest.queue_free()
 	_show_message("Собрано: %s × %d" % [kind, amount])
@@ -183,20 +202,61 @@ func _craft_tool() -> void:
 	else:
 		_show_message("Топор: 3 дерева, 2 камня и 1 волокно")
 
+func _craft_pickaxe() -> void:
+	if has_pickaxe:
+		_show_message("Каменная кирка уже изготовлена")
+	elif int(inventory.wood) >= 2 and int(inventory.stone) >= 3 and int(inventory.stick) >= 1:
+		inventory.wood -= 2
+		inventory.stone -= 3
+		inventory.stick -= 1
+		has_pickaxe = true
+		_show_message("Каменная кирка изготовлена. Теперь добывай камень.")
+	else:
+		_show_message("Кирка: 2 дерева, 3 камня и 1 ветка")
+	_update_hud()
+
+func _eat_berries() -> void:
+	if int(inventory.berries) <= 0:
+		_show_message("Нет ягод. Найди кусты на острове.")
+		return
+	inventory.berries -= 1
+	hunger = minf(100.0, hunger + 22.0)
+	_show_message("Съедены дикие ягоды. Голод уменьшился.")
+	_update_hud()
+
 func _build_campfire() -> void:
 	if int(inventory.wood) < 4 or int(inventory.stone) < 3:
 		_show_message("Костёр: нужно 4 дерева и 3 камня")
 		return
 	inventory.wood -= 4
 	inventory.stone -= 3
+	var fire_root := Node3D.new()
+	fire_root.name = "Campfire"
+	fire_root.position = global_position + -global_transform.basis.z * 3.0
+	get_tree().current_scene.add_child(fire_root)
+	for i in range(8):
+		var stone := MeshInstance3D.new()
+		var stone_mesh := SphereMesh.new()
+		stone_mesh.radius = 0.28
+		stone_mesh.height = 0.38
+		stone.mesh = stone_mesh
+		stone.position = Vector3(cos(TAU * i / 8.0) * 0.8, 0.12, sin(TAU * i / 8.0) * 0.8)
+		stone.material_override = _mat(Color(0.22, 0.24, 0.22), 1.0)
+		fire_root.add_child(stone)
 	var fire := MeshInstance3D.new()
 	var flame := SphereMesh.new()
-	flame.radius = 0.55
-	flame.height = 1.2
+	flame.radius = 0.42
+	flame.height = 1.0
 	fire.mesh = flame
-	fire.material_override = _mat(Color(1.0, 0.28, 0.035), 0.35)
-	fire.position = global_position + -global_transform.basis.z * 3.0 + Vector3.UP * 0.65
-	get_tree().current_scene.add_child(fire)
+	fire.material_override = _mat(Color(1.0, 0.25, 0.025), 0.35)
+	fire.position.y = 0.58
+	fire_root.add_child(fire)
+	var glow := OmniLight3D.new()
+	glow.light_color = Color(1.0, 0.38, 0.12)
+	glow.light_energy = 1.5
+	glow.omni_range = 9.0
+	glow.position.y = 1.0
+	fire_root.add_child(glow)
 	_show_message("Костёр построен")
 	_update_hud()
 
@@ -238,6 +298,13 @@ func _place_hut() -> void:
 			part.rotation.y = PI * 0.5
 			part.position = Vector3(2.0, 1.25, 0)
 		root.add_child(part)
+	var floor := MeshInstance3D.new()
+	var floor_mesh := BoxMesh.new()
+	floor_mesh.size = Vector3(4.2, 0.18, 4.2)
+	floor.mesh = floor_mesh
+	floor.position.y = 0.12
+	floor.material_override = wood_mat
+	root.add_child(floor)
 	var roof := MeshInstance3D.new()
 	var roof_mesh := PrismMesh.new()
 	roof_mesh.size = Vector3(4.6, 1.8, 4.6)
@@ -267,7 +334,7 @@ func _show_message(message: String) -> void:
 
 func _update_hud() -> void:
 	if hud:
-		hud.set_status("HP %d  |  Еда %d  |  Вода %d\nДерево %d  Камень %d  Волокно %d  Ветки %d  Ягоды %d  |  Постройки %d" % [int(health), int(hunger), int(thirst), int(inventory.wood), int(inventory.stone), int(inventory.fiber), int(inventory.stick), int(inventory.berries), built_count])
+		hud.set_status("HP %d  |  Еда %d  |  Вода %d\nДерево %d Камень %d Волокно %d Ветки %d Ягоды %d | Топор %s Кирка %s | Дом/плот %d" % [int(health), int(hunger), int(thirst), int(inventory.wood), int(inventory.stone), int(inventory.fiber), int(inventory.stick), int(inventory.berries), "да" if has_axe else "нет", "да" if has_pickaxe else "нет", built_count])
 
 func _physics_process(delta: float) -> void:
 	survival_clock += delta
