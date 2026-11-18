@@ -1,4 +1,5 @@
 name: Build SHOHIN 3D assets with Blender
+
 on:
   workflow_dispatch:
   push:
@@ -6,28 +7,42 @@ on:
     paths:
       - "tools/blender/**"
       - ".github/workflows/blender-assets.yml"
+
 permissions:
   contents: write
+
 jobs:
   blender-build:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: /usr/lib/python3/dist-packages
     steps:
       - uses: actions/checkout@v4
-      - name: Install Blender
+
+      - name: Install Blender and NumPy
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender python3-pip
-      - name: Install NumPy into Blender Python
+          sudo apt-get install -y blender python3-numpy
+
+      - name: Verify Blender Python and NumPy
         run: |
-          blender --background --python-expr "import ensurepip; ensurepip.bootstrap(); import subprocess,sys; subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip', 'numpy'])"
+          blender --background --python-expr "import sys, numpy, bpy; print('Blender:', bpy.app.version_string); print('Python:', sys.version); print('NumPy:', numpy.__version__); print('GLB exporter:', hasattr(bpy.ops.export_scene, 'gltf'))"
+
       - name: Generate forest models
         run: |
+          mkdir -p assets/generated
           blender --background --python tools/blender/build_world.py
           test -s assets/generated/forest_pack.glb
+          ls -lh assets/generated/forest_pack.glb
+
       - name: Commit generated GLB
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/generated/forest_pack.glb
-          git commit -m "Build procedural SHOHIN forest asset pack" || echo "No asset changes to commit"
-          git push
+          if git diff --cached --quiet; then
+            echo "No asset changes to commit"
+          else
+            git commit -m "Build procedural SHOHIN forest asset pack"
+            git push
+          fi
