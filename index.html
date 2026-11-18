@@ -31,24 +31,13 @@
 <div id="actions"><button class="act primary" id="use">ДОБЫТЬ</button><button class="act" id="jump">ПРЫЖОК</button></div>
 <div id="bottom"><button class="tab" id="bag">РЕСУРСЫ</button><button class="tab" id="craft">КРАФТ</button><button class="tab" id="build">СТРОИТЬ</button></div>
 <div id="panel"><button class="close" id="close">×</button><h3 id="paneltitle">РЕСУРСЫ</h3><div id="panelbody"></div></div><div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.1/three.min.js"></script>
 <script type="module">
-let THREE, GLTFLoader;
-try {
-  try {
-    THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
-    const loaderModule = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js');
-    GLTFLoader = loaderModule.GLTFLoader;
-  } catch (cdnError) {
-    THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
-    const loaderModule = await import('https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js');
-    GLTFLoader = loaderModule.GLTFLoader;
-  }
-} catch (loadError) {
+const THREE = window.THREE;
+if (!THREE) {
   const loading = document.querySelector('#loading');
-  loading.style.opacity = '1';
-  loading.innerHTML = '<div style="padding:24px;max-width:330px"><b style="font-size:20px;color:#baf05b">SHOHIN</b><p style="font-size:14px;color:#eef8f1">Не удалось загрузить 3D-движок. Проверь интернет и открой игру ещё раз.</p><small style="color:#b8cfc2">3D ENGINE LOAD ERROR</small></div>';
-  console.error('Three.js failed to load from both CDNs:', loadError);
-  throw loadError;
+  loading.innerHTML = '<div style="padding:24px;color:#eef8f1"><b style="color:#baf05b">SHOHIN</b><p>Не загрузилась библиотека 3D. Проверь подключение к интернету.</p></div>';
+  throw new Error('THREE library unavailable');
 }
 const mount=document.querySelector('#game'),scene=new THREE.Scene();scene.background=new THREE.Color(0x9ac8d0);scene.fog=new THREE.Fog(0x9ac8d0,42,145);
 const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
@@ -103,7 +92,6 @@ for(const a of animals){a.p+=dt*.35;a.mesh.position.x=a.x+Math.sin(a.p)*1.6;a.me
 state.elapsed+=dt;if(state.elapsed>45){state.elapsed=0;state.day++;}state.hunger=Math.max(0,state.hunger-dt*.11);state.thirst=Math.max(0,state.thirst-dt*.18);if(state.hunger===0||state.thirst===0)state.hp=Math.max(0,state.hp-dt*.8);if(state.hp<=0){toast('Ты потерял сознание. Перезапусти мир для новой попытки.');state.hp=1}
 const cycle=(Math.sin((state.elapsed/45)*Math.PI*2-Math.PI/2)+1)/2;sun.intensity=.35+cycle*2;scene.background.setRGB(.035+cycle*.55,.07+cycle*.63,.12+cycle*.65);scene.fog.color.copy(scene.background);
 const target=new THREE.Vector3(player.position.x,player.position.y+1.3,player.position.z),offset=new THREE.Vector3(Math.sin(yaw)*7,3.3+pitch*2,Math.cos(yaw)*7);camera.position.lerp(target.clone().add(offset),1-Math.pow(.001,dt));camera.lookAt(target);updateUI();renderer.render(scene,camera)}
-const forestLoader=new GLTFLoader();
-forestLoader.load('./assets/generated/forest_pack.glb',gltf=>{const pack=gltf.scene;const prototypes={};pack.traverse(o=>{if(o.isMesh){if(o.name.includes('Tree_Pine'))prototypes.pine=o;if(o.name.includes('Tree_Broadleaf'))prototypes.oak=o;if(o.name.includes('Tree_Sapling'))prototypes.sapling=o;}});for(const r of resources){if(r.kind!=='tree')continue;const old=r.mesh;const oldPos=old.position.clone();const oldRot=old.rotation.y;const roll=Math.random();const type=roll<.48?'pine':roll<.9?'oak':'sapling';const proto=prototypes[type];if(!proto)continue;scene.remove(old);const model=proto.clone();const scale=type==='sapling'?.8+Math.random()*.35:.78+Math.random()*.38;model.scale.setScalar(scale);const bounds=new THREE.Box3().setFromObject(model);model.position.set(oldPos.x,oldPos.y-bounds.min.y,oldPos.z);model.rotation.y=oldRot;model.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});scene.add(model);r.mesh=model;}toast('Модели Blender загружены.');},undefined,err=>console.warn('Forest pack unavailable; using procedural forest.',err));
+// Optional external Blender GLB loading is disabled for reliable startup.
 animate();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5))});setTimeout(()=>{const l=document.querySelector('#loading');l.style.opacity='0';setTimeout(()=>l.remove(),550);toast('Выживай: добывай дерево и камень, создавай инструменты и строй укрытие.');},800);
 </script></body></html>
