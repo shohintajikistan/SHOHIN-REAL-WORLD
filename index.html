@@ -15,11 +15,21 @@
 #panel{position:fixed;z-index:8;left:10px;right:10px;bottom:145px;max-height:48vh;overflow:auto;background:#071c16f2;border:1px solid #08a56c99;border-radius:16px;padding:13px;display:none;backdrop-filter:blur(14px)}#panel.open{display:block}#panel h3{font-size:14px;color:var(--lime);margin:0 0 9px}#panel p{font-size:11px;color:#c6d9ce;margin:5px 0 10px}.items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.item{background:#0d3024;border:1px solid #426b59;border-radius:11px;padding:10px;text-align:left;color:white;font-size:11px}.item b{display:block;color:var(--lime);font-size:12px;margin-bottom:4px}.item:disabled{opacity:.38}.close{float:right;background:transparent;border:0;color:#baf05b;font-size:20px}
 #toast{position:fixed;left:50%;bottom:205px;transform:translateX(-50%);z-index:12;background:#0d3024ed;border:1px solid #baf05b66;border-radius:12px;padding:10px 13px;font-size:11px;display:none;max-width:86%;text-align:center}
 #loading{position:fixed;inset:0;z-index:20;background:#071c16;display:grid;place-items:center;text-align:center;transition:opacity .5s}#loading b{font-size:23px;letter-spacing:4px;color:var(--lime)}#loading span{display:block;color:#b8cfc2;font-size:10px;margin-top:10px;letter-spacing:2px}
+/* CINEMATIC VISUAL PASS — subtle filmic vignette, atmospheric edge falloff, no gameplay obstruction */
+#cinemaFX{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;
+ background:radial-gradient(ellipse at 50% 46%,transparent 48%,rgba(3,13,12,.12) 72%,rgba(2,10,10,.48) 112%);
+}
+#cinemaFX:before{content:"";position:absolute;inset:0;
+ background:linear-gradient(180deg,rgba(4,13,15,.23),transparent 17%,transparent 78%,rgba(3,12,12,.28));
+}
+#cinemaFX:after{content:"";position:absolute;inset:0;opacity:.045;mix-blend-mode:soft-light;
+ background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
 @media(min-width:700px){#stick{width:100px;height:100px}#nub{left:27px;top:27px}#panel{max-width:440px;left:auto;right:20px;bottom:110px}}
 </style>
 </head>
 <body>
-<div id="game"></div><div id="loading"><div><b>SHOHIN</b><span>ENTERING SURVIVAL WORLD...</span></div></div>
+<div id="game"></div><div id="cinemaFX" aria-hidden="true"></div><div id="loading"><div><b>SHOHIN</b><span>ENTERING SURVIVAL WORLD...</span></div></div>
 <div id="top"><div class="brand"><b>SHOHIN REAL WORLD</b><small>SURVIVAL • EARLY ACCESS</small></div><div class="stats" id="inventory"><span>ДОБЫЧА</span><br><span>ЗАГРУЗКА...</span></div></div>
 <div id="bars">
  <div class="barline"><span><svg class="baricon" viewBox="0 0 24 24"><path d="M20 7 13 14 9 10 4 15"/><path d="M4 8v7h7"/></svg></span><b id="hpnum">100</b></div><div class="track"><div id="hpbar" class="fill health"></div></div>
@@ -35,7 +45,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 const mount=document.querySelector('#game'),scene=new THREE.Scene();scene.background=new THREE.Color(0x9ac8d0);scene.fog=new THREE.Fog(0x9ac8d0,42,145);
 const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.35));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;mount.appendChild(renderer.domElement);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.35));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;mount.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdaf4ff,0x526b37,1.8));const sun=new THREE.DirectionalLight(0xfff1d2,2.2);sun.position.set(-35,55,25);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-45;sun.shadow.camera.right=45;sun.shadow.camera.top=45;sun.shadow.camera.bottom=-45;scene.add(sun);
 const mat=(c,r=1)=>new THREE.MeshStandardMaterial({color:c,roughness:r}),grass=mat(0x578b45),trunk=mat(0x765039),leaf=mat(0x267448),leaf2=mat(0x398b4d),stone=mat(0x858d82),wood=mat(0x9b6840),wall=mat(0xd8c99d),roof=mat(0x674b3b);
 function islandRadius(a){return 78+Math.sin(a*3+.4)*8.5+Math.cos(a*5-1.1)*5.5+Math.sin(a*8)*2.2;}function islandEdge(x,z){const a=Math.atan2(z,x);return islandRadius(a);}function isLand(x,z,margin=0){return Math.hypot(x,z)<islandEdge(x,z)-margin;}function terrainHeight(x,z){const r=Math.hypot(x,z),edge=islandEdge(x,z),n=Math.max(0,Math.min(1,(edge-r)/19));const coast=-2.8+3.45*Math.pow(n,.62);const ridge=5.8*Math.exp(-((x-9)*(x-9)+(z+12)*(z+12))/520)+3.5*Math.exp(-((x+24)*(x+24)+(z-5)*(z-5))/380);const hills=1.2*Math.sin(x*.052+z*.031)+.75*Math.sin(z*.083-x*.047);const detail=Math.sin(x*.19+z*.13)*.22+Math.cos(z*.23-x*.17)*.16;const lakeDip=1.35*Math.exp(-((x+18)*(x+18)+(z-12)*(z-12))/90);return r>edge?-3.15:coast+ridge*n+hills*n+detail*n-lakeDip;}
