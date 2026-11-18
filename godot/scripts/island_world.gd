@@ -1,21 +1,24 @@
 extends Node3D
 
-# SHOHIN REAL WORLD — first Godot 4 island foundation.
-# Island dimensions: 4,000 x 4,000 metres.
+# SHOHIN REAL WORLD — staged island generation for mobile devices.
 const ISLAND_SIZE := 4000.0
-const GRID := 64
+const GRID := 48
 const WATER_LEVEL := -7.0
 
 var terrain_noise := FastNoiseLite.new()
+var rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
 	_build_environment()
 	_build_ocean()
+	await get_tree().process_frame
 	_build_island()
+	await get_tree().process_frame
 	_build_forests()
+	await get_tree().process_frame
 	_build_resource_props()
 	_spawn_player()
-	print("SHOHIN REAL WORLD: playable island loaded.")
+	print("SHOHIN REAL WORLD: island ready.")
 
 func _build_environment() -> void:
 	var world := WorldEnvironment.new()
@@ -25,15 +28,14 @@ func _build_environment() -> void:
 	environment.sky.sky_material = ProceduralSkyMaterial.new()
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(0.58, 0.66, 0.72)
-	environment.ambient_light_energy = 0.65
+	environment.ambient_light_energy = 0.72
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	world.environment = environment
 	add_child(world)
-
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-48.0, -32.0, 0.0)
-	sun.light_energy = 1.4
-	sun.shadow_enabled = true
+	sun.light_energy = 1.15
+	sun.shadow_enabled = false
 	add_child(sun)
 
 func _build_ocean() -> void:
@@ -44,9 +46,8 @@ func _build_ocean() -> void:
 	ocean.position.y = WATER_LEVEL
 	var water := StandardMaterial3D.new()
 	water.albedo_color = Color(0.025, 0.19, 0.25)
-	water.metallic = 0.22
-	water.roughness = 0.24
-	water.transparency = BaseMaterial3D.TRANSPARENCY_DISABLED
+	water.metallic = 0.18
+	water.roughness = 0.28
 	ocean.material_override = water
 	add_child(ocean)
 
@@ -84,12 +85,12 @@ func _build_island() -> void:
 	ground.roughness = 1.0
 	terrain.material_override = ground
 	add_child(terrain)
-	var ground_body := StaticBody3D.new()
-	ground_body.name = "IslandCollision"
-	var ground_collision := CollisionShape3D.new()
-	ground_collision.shape = terrain.mesh.create_trimesh_shape()
-	ground_body.add_child(ground_collision)
-	add_child(ground_body)
+	var body := StaticBody3D.new()
+	body.name = "IslandCollision"
+	var collision := CollisionShape3D.new()
+	collision.shape = terrain.mesh.create_trimesh_shape()
+	body.add_child(collision)
+	add_child(body)
 
 func _add_terrain_triangle(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3) -> void:
 	for point in [a, b, c]:
@@ -113,20 +114,18 @@ func _build_forests() -> void:
 	var pines := MultiMesh.new()
 	pines.transform_format = MultiMesh.TRANSFORM_3D
 	pines.mesh = pine_mesh
-	pines.instance_count = 520
+	pines.instance_count = 320
 	var tropics := MultiMesh.new()
 	tropics.transform_format = MultiMesh.TRANSFORM_3D
 	tropics.mesh = tropical_mesh
-	tropics.instance_count = 220
+	tropics.instance_count = 140
 	var pine_i := 0
 	var tropic_i := 0
-	var rng := RandomNumberGenerator.new()
 	rng.seed = 480021
-	for i in range(1100):
+	for i in range(700):
 		var x := rng.randf_range(-1850.0, 1850.0)
 		var z := rng.randf_range(-1850.0, 1850.0)
-		var radius := Vector2(x, z).length()
-		if radius > 1850.0:
+		if Vector2(x, z).length() > 1850.0:
 			continue
 		var y := _height_at(x, z)
 		if y < WATER_LEVEL + 10.0 or y > 280.0:
@@ -146,13 +145,11 @@ func _build_forests() -> void:
 	var pine_node := MultiMeshInstance3D.new()
 	pine_node.multimesh = pines
 	add_child(pine_node)
-	var tropic_node := MultiMeshInstance3D.new()
-	tropic_node.multimesh = tropics
-	add_child(tropic_node)
+	var tropical_node := MultiMeshInstance3D.new()
+	tropical_node.multimesh = tropics
+	add_child(tropical_node)
 
 func _make_tree_mesh(tropical: bool) -> ArrayMesh:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var trunk := CylinderMesh.new()
 	trunk.top_radius = 0.16 if tropical else 0.12
 	trunk.bottom_radius = 0.24 if tropical else 0.19
@@ -188,52 +185,59 @@ func _tree_material(color: Color) -> StandardMaterial3D:
 	material.roughness = 1.0
 	return material
 
+func _make_gatherable(name_text: String, resource: String, amount: int, mesh: Mesh, pos: Vector3, color: Color) -> void:
+	var item := StaticBody3D.new()
+	item.name = name_text
+	item.add_to_group("gatherable")
+	item.set_meta("resource_type", resource)
+	item.set_meta("amount", amount)
+	item.position = pos
+	var visual := MeshInstance3D.new()
+	visual.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 1.0
+	visual.material_override = material
+	item.add_child(visual)
+	var shape := CollisionShape3D.new()
+	if mesh is SphereMesh:
+		var sphere := SphereShape3D.new()
+		sphere.radius = 1.2
+		shape.shape = sphere
+	else:
+		var capsule := CapsuleShape3D.new()
+		capsule.radius = 0.45
+		capsule.height = 3.0
+		shape.shape = capsule
+	item.add_child(shape)
+	add_child(item)
 
 func _build_resource_props() -> void:
-	var rng := RandomNumberGenerator.new()
 	rng.seed = 20261119
-	for i in range(20):
-		var x := rng.randf_range(-900.0, 900.0)
-		var z := rng.randf_range(-900.0, 900.0)
+	for i in range(28):
+		var x := rng.randf_range(-950.0, 950.0)
+		var z := rng.randf_range(-950.0, 950.0)
 		var y := _height_at(x, z)
 		if y < WATER_LEVEL + 12.0:
 			continue
-		var rock := MeshInstance3D.new()
-		var rock_mesh := SphereMesh.new()
-		rock_mesh.radius = rng.randf_range(0.7, 1.8)
-		rock_mesh.height = rock_mesh.radius * 1.25
-		rock.mesh = rock_mesh
-		rock.position = Vector3(x, y + rock_mesh.radius * 0.35, z)
-		rock.scale = Vector3(rng.randf_range(0.8, 1.4), rng.randf_range(0.55, 1.0), rng.randf_range(0.8, 1.3))
-		var stone := StandardMaterial3D.new()
-		stone.albedo_color = Color(0.28, 0.31, 0.29)
-		stone.roughness = 1.0
-		rock.material_override = stone
-		add_child(rock)
-	for i in range(10):
+		var rock := SphereMesh.new()
+		rock.radius = rng.randf_range(0.7, 1.35)
+		rock.height = rock.radius * 1.25
+		_make_gatherable("Stone deposit", "stone", 2, rock, Vector3(x, y + 0.4, z), Color(0.28, 0.31, 0.29))
+	for i in range(18):
 		var x := rng.randf_range(-1000.0, 1000.0)
 		var z := rng.randf_range(-1000.0, 1000.0)
 		var y := _height_at(x, z)
 		if y < WATER_LEVEL + 12.0:
 			continue
-		var log := MeshInstance3D.new()
 		var log_mesh := CylinderMesh.new()
-		log_mesh.top_radius = 0.18
-		log_mesh.bottom_radius = 0.22
+		log_mesh.top_radius = 0.2
+		log_mesh.bottom_radius = 0.24
 		log_mesh.height = rng.randf_range(2.5, 4.5)
-		log.mesh = log_mesh
-		log.position = Vector3(x, y + 0.25, z)
-		log.rotation.z = PI * 0.5
-		var wood := StandardMaterial3D.new()
-		wood.albedo_color = Color(0.27, 0.16, 0.085)
-		wood.roughness = 1.0
-		log.material_override = wood
-		add_child(log)
+		_make_gatherable("Driftwood", "wood", 3, log_mesh, Vector3(x, y + 0.3, z), Color(0.27, 0.16, 0.085))
 
 func _spawn_player() -> void:
-	var player_script = load("res://scripts/player_controller.gd")
 	var player := CharacterBody3D.new()
-	player.set_script(player_script)
-	player.position = Vector3(0.0, _height_at(0.0, 0.0) + 2.0, 0.0)
+	player.set_script(load("res://scripts/player_controller.gd"))
+	player.position = Vector3(0.0, _height_at(0.0, 0.0) + 3.0, 0.0)
 	add_child(player)
-
