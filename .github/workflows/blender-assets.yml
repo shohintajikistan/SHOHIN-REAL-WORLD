@@ -16,12 +16,18 @@ jobs:
       - name: Install Blender
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-pip
+      - name: Install NumPy into Blender Python
+        run: |
+          blender --background --python-expr "import ensurepip; ensurepip.bootstrap(); import subprocess,sys; subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip', 'numpy'])"
       - name: Generate forest models
-        run: blender --background --python tools/blender/build_world.py
+        run: |
+          blender --background --python tools/blender/build_world.py
+          test -s assets/generated/forest_pack.glb
       - name: Commit generated GLB
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/generated/forest_pack.glb
-          if git diff --cached --quiet; then echo "No changes"; else git commit -m "Build procedural forest asset pack"; git push; fi
+          git commit -m "Build procedural SHOHIN forest asset pack" || echo "No asset changes to commit"
+          git push
