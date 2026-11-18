@@ -175,12 +175,6 @@ func _gather_nearest() -> void:
 		_show_message("Подойди ближе к дереву или камням")
 		return
 	var kind: String = nearest.get_meta("resource_type", "wood")
-	if kind == "stone" and not has_pickaxe:
-		_show_message("Для добычи камня сначала изготовь кирку")
-		return
-	if kind == "wood" and not has_axe:
-		_show_message("Для рубки дерева нужен каменный топор")
-		return
 	var amount: int = nearest.get_meta("amount", 1)
 	if kind == "wood" and has_axe:
 		amount += 2
