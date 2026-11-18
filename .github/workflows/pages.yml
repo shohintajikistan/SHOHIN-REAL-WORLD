@@ -1,8 +1,11 @@
-name: Deploy SHOHIN REAL WORLD to GitHub Pages
+name: Build and publish SHOHIN REAL WORLD Godot web preview
 
 on:
   push:
     branches: ["main"]
+    paths:
+      - "godot/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -20,20 +23,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
-      - name: Bundle Three.js locally
+
+      - name: Download Godot 4.4.1
         run: |
-          mkdir -p assets/vendor
-          npm pack three@0.160.1 --pack-destination /tmp
-          tar -xzf /tmp/three-0.160.1.tgz -C /tmp
-          cp /tmp/package/build/three.min.js assets/vendor/three.min.js
-      - name: Upload site
+          wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_linux.x86_64.zip
+          unzip -q Godot_v4.4.1-stable_linux.x86_64.zip -d /tmp/godot
+          chmod +x /tmp/godot/Godot_v4.4.1-stable_linux.x86_64
+
+      - name: Install Godot export templates
+        run: |
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.4.1.stable"
+          wget -q https://github.com/godotengine/godot/releases/download/4.4.1-stable/Godot_v4.4.1-stable_export_templates.tpz -O /tmp/godot-templates.tpz
+          unzip -q /tmp/godot-templates.tpz -d /tmp/godot-templates
+          cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/4.4.1.stable/"
+
+      - name: Export Godot web build
+        run: |
+          mkdir -p godot/build/web
+          /tmp/godot/Godot_v4.4.1-stable_linux.x86_64 --headless --path godot --editor --quit
+          /tmp/godot/Godot_v4.4.1-stable_linux.x86_64 --headless --path godot --export-release "Web" build/web/index.html
+          test -s godot/build/web/index.html
+
+      - name: Upload web preview
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "godot/build/web"
+
   deploy:
     environment:
       name: github-pages
