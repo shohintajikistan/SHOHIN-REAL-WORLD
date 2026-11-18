@@ -50,7 +50,8 @@ func _draw() -> void:
 		["СОБРАТЬ", "gather", Vector2(size.x * 0.86, size.y * 0.63)],
 		["ДОМ", "hut", Vector2(size.x * 0.76, size.y * 0.79)],
 		["ПЛОТ", "raft", Vector2(size.x * 0.90, size.y * 0.83)],
-		["ТОПОР", "craft", Vector2(size.x * 0.76, size.y * 0.94)]
+		["ТОПОР", "craft", Vector2(size.x * 0.76, size.y * 0.94)],
+		["КОСТЁР", "fire", Vector2(size.x * 0.90, size.y * 0.94)]
 	]
 	for entry in actions:
 		var pos: Vector2 = entry[2]
@@ -65,7 +66,8 @@ func _action_at(pos: Vector2, size: Vector2) -> String:
 		["gather", Vector2(size.x * 0.86, size.y * 0.63)],
 		["hut", Vector2(size.x * 0.76, size.y * 0.79)],
 		["raft", Vector2(size.x * 0.90, size.y * 0.83)],
-		["craft", Vector2(size.x * 0.76, size.y * 0.94)]
+		["craft", Vector2(size.x * 0.76, size.y * 0.94)],
+		["fire", Vector2(size.x * 0.90, size.y * 0.94)]
 	]
 	for entry in actions:
 		if pos.distance_to(entry[1]) < 40.0:
