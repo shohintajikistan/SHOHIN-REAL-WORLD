@@ -53,18 +53,67 @@ const resources=[];for(let i=0;i<230;i++){const x=(Math.random()-.5)*108,z=(Math
 const shrubGeo=new THREE.IcosahedronGeometry(.34,1);const shrubMat=mat(0x315f35);const shrubs=new THREE.InstancedMesh(shrubGeo,shrubMat,520);const dummy=new THREE.Object3D();let shrubCount=0;for(let attempt=0;attempt<2200&&shrubCount<520;attempt++){const x=(Math.random()-.5)*125,z=(Math.random()-.5)*125;if(!isLand(x,z,5)||Math.hypot(x,z)<7)continue;dummy.position.set(x,terrainHeight(x,z)+.22,z);const sc=.45+Math.random()*.95;dummy.scale.set(sc,sc*(.7+Math.random()*.7),sc);dummy.rotation.y=Math.random()*6.28;dummy.updateMatrix();shrubs.setMatrixAt(shrubCount++,dummy.matrix);}shrubs.count=shrubCount;shrubs.instanceMatrix.needsUpdate=true;scene.add(shrubs);
 const grassGeo=new THREE.ConeGeometry(.055,.42,4);const grassMat=mat(0x83a85a);const grassPatches=new THREE.InstancedMesh(grassGeo,grassMat,1300);let grassCount=0;for(let attempt=0;attempt<5000&&grassCount<1300;attempt++){const x=(Math.random()-.5)*125,z=(Math.random()-.5)*125;if(!isLand(x,z,2)||Math.hypot(x,z)<7)continue;dummy.position.set(x,terrainHeight(x,z)+.17,z);const sc=.35+Math.random()*.8;dummy.scale.set(sc,sc,sc);dummy.rotation.set((Math.random()-.5)*.3,Math.random()*6.28,(Math.random()-.5)*.3);dummy.updateMatrix();grassPatches.setMatrixAt(grassCount++,dummy.matrix);}grassPatches.count=grassCount;grassPatches.instanceMatrix.needsUpdate=true;scene.add(grassPatches);
 const player=new THREE.Group();
-const skin=mat(0xc98f68),shirt=mat(0x176b4a),shirtLight=mat(0x239568),pants=mat(0x293c38),boots=mat(0x34271f),hair=mat(0x29221c),eye=new THREE.MeshStandardMaterial({color:0x171717,roughness:.55});
-const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.68,5,10),shirt);torso.position.y=1.28;torso.castShadow=true;player.add(torso);
-const chest=new THREE.Mesh(new THREE.BoxGeometry(.48,.22,.12),shirtLight);chest.position.set(0,1.48,.29);player.add(chest);
-const belt=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.12,12),boots);belt.position.y=.83;player.add(belt);
-const head=new THREE.Mesh(new THREE.SphereGeometry(.245,16,12),skin);head.position.y=2.02;head.castShadow=true;player.add(head);
-const hairCap=new THREE.Mesh(new THREE.SphereGeometry(.25,14,8,0,Math.PI*2,0,Math.PI*.58),hair);hairCap.position.set(0,2.09,-.015);player.add(hairCap);
-for(const x of [-.09,.09]){const e=new THREE.Mesh(new THREE.SphereGeometry(.025,8,6),eye);e.position.set(x,2.04,.225);player.add(e)}
+const skin=mat(0xc98f68),shirt=mat(0x176b4a),shirtLight=mat(0x239568),pants=mat(0x293c38),boots=mat(0x34271f),hair=mat(0x29221c),leather=mat(0x684a32),metal=mat(0xb6b9a9);
+const eye=new THREE.MeshStandardMaterial({color:0x171717,roughness:.55});
+function detailMesh(geo,material,parent,pos,scale){const m=new THREE.Mesh(geo,material);m.position.set(...pos);if(scale)m.scale.set(...scale);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
+const torso=detailMesh(new THREE.CapsuleGeometry(.32,.64,7,12),shirt,player,[0,1.27,0],[1,.98,.78]);
+const chestSeam=detailMesh(new THREE.CapsuleGeometry(.245,.36,5,10),shirtLight,player,[0,1.43,.205],[1,.82,.25]);
+const neck=detailMesh(new THREE.CylinderGeometry(.105,.13,.2,12),skin,player,[0,1.78,0]);
+const headGroup=new THREE.Group();headGroup.position.set(0,1.98,.015);player.add(headGroup);
+detailMesh(new THREE.SphereGeometry(.235,18,14),skin,headGroup,[0,0,0],[.91,1.12,.91]);
+detailMesh(new THREE.SphereGeometry(.245,16,10,0,Math.PI*2,0,Math.PI*.55),hair,headGroup,[0,.075,-.035],[1.02,.92,1.02]);
+detailMesh(new THREE.SphereGeometry(.105,12,8),skin,headGroup,[0,-.105,.18],[.8,.56,.62]);
+detailMesh(new THREE.SphereGeometry(.045,10,8),skin,headGroup,[0,-.035,.222],[.72,.7,.7]);
+for(const side of [-1,1]){
+ detailMesh(new THREE.SphereGeometry(.065,10,8),skin,headGroup,[side*.225,-.015,0],[.55,1,.7]);
+ detailMesh(new THREE.SphereGeometry(.028,10,8),eye,headGroup,[side*.09,.025,.207],[.75,.75,.4]);
+ detailMesh(new THREE.CapsuleGeometry(.018,.055,3,6),hair,headGroup,[side*.09,.075,.202],[1,1,.6]);
+}
+detailMesh(new THREE.CylinderGeometry(.29,.3,.105,14),leather,player,[0,.83,0]);
+detailMesh(new THREE.BoxGeometry(.09,.075,.035),metal,player,[0,.83,.29]);
 const legs=[],arms=[];
-for(const x of [-.17,.17]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.115,.55,4,8),pants);leg.position.set(x,.43,0);leg.castShadow=true;player.add(leg);legs.push(leg);const boot=new THREE.Mesh(new THREE.BoxGeometry(.22,.16,.34),boots);boot.position.set(x,.12,.075);player.add(boot);const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.105,.48,4,8),skin);arm.position.set(x*2,1.34,0);arm.rotation.z=x<0?-.1:.1;arm.castShadow=true;player.add(arm);arms.push(arm);const sleeve=new THREE.Mesh(new THREE.CapsuleGeometry(.12,.22,4,8),shirt);sleeve.position.set(x*2,1.57,0);player.add(sleeve)}
+for(const side of [-1,1]){
+ const leg=new THREE.Group();leg.position.set(side*.17,.76,0);player.add(leg);legs.push(leg);
+ detailMesh(new THREE.CapsuleGeometry(.125,.39,5,9),pants,leg,[0,-.22,0],[1,1,.92]);
+ detailMesh(new THREE.CapsuleGeometry(.105,.34,5,9),pants,leg,[0,-.57,.015],[.92,1,.9]);
+ detailMesh(new THREE.CapsuleGeometry(.12,.16,4,8),boots,leg,[0,-.77,.09],[1,.65,1.25]);
+ const arm=new THREE.Group();arm.position.set(side*.34,1.56,0);player.add(arm);arms.push(arm);
+ detailMesh(new THREE.CapsuleGeometry(.105,.29,5,9),shirt,arm,[0,-.18,0],[1,1,.95]);
+ detailMesh(new THREE.CapsuleGeometry(.083,.28,5,9),skin,arm,[0,-.52,.015]);
+ detailMesh(new THREE.SphereGeometry(.09,10,8),skin,arm,[0,-.7,.025],[.9,1.05,.8]);
+}
+const backpack=detailMesh(new THREE.CapsuleGeometry(.23,.36,5,9),leather,player,[0,1.27,-.265],[.85,1,.62]);
+detailMesh(new THREE.CapsuleGeometry(.055,.36,4,8),wood,player,[-.31,1.25,-.22],[.8,1,.8]);
 scene.add(player);
 const state={wood:0,stone:0,fiber:0,food:2,axe:false,pick:false,hp:100,hunger:100,thirst:100,day:1,elapsed:0,built:[]};
-const animals=[];function animal(x,z){const g=new THREE.Group(),fur=mat(0xb77b43);const torso=new THREE.Mesh(new THREE.SphereGeometry(.48,10,8),fur);torso.scale.set(1,.75,1.3);torso.position.y=.7;g.add(torso);const h=new THREE.Mesh(new THREE.SphereGeometry(.2,8,8),fur);h.position.set(0,1.15,.48);g.add(h);for(const sx of [-.22,.22])for(const sz of [-.3,.3]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,.45,5),fur);l.position.set(sx,.25,sz);g.add(l)}g.position.set(x,0,z);scene.add(g);animals.push({mesh:g,x,z,p:Math.random()*6})}for(let i=0;i<10;i++)animal((Math.random()-.5)*70,(Math.random()-.5)*70);
+const animals=[];const deerFur=mat(0x98613a),deerLight=mat(0xc18a58),hoofMat=mat(0x30251d),antlerMat=mat(0x59412e),deerEye=new THREE.MeshStandardMaterial({color:0x100d0a,roughness:.35});
+function animal(x,z){
+ const g=new THREE.Group(),legs=[];
+ detailMesh(new THREE.SphereGeometry(.48,16,12),deerFur,g,[0,.91,0],[.76,.78,1.42]);
+ detailMesh(new THREE.SphereGeometry(.3,14,10),deerLight,g,[0,.78,.14],[.72,.62,1.05]);
+ const neck=new THREE.Group();neck.position.set(0,1.03,.42);neck.rotation.x=-.42;g.add(neck);
+ detailMesh(new THREE.CapsuleGeometry(.16,.55,6,10),deerFur,neck,[0,.17,.15],[.92,1,1.08]);
+ const head=new THREE.Group();head.position.set(0,.48,.47);head.rotation.x=-.12;neck.add(head);
+ detailMesh(new THREE.SphereGeometry(.22,14,10),deerFur,head,[0,0,0],[.86,1.05,1.05]);
+ detailMesh(new THREE.SphereGeometry(.13,12,8),deerLight,head,[0,-.105,.16],[.78,.65,1.05]);
+ detailMesh(new THREE.SphereGeometry(.075,10,8),hoofMat,head,[0,-.07,.27],[.85,.65,.75]);
+ for(const side of [-1,1]){
+  detailMesh(new THREE.SphereGeometry(.035,8,6),deerEye,head,[side*.145,.045,.16]);
+  const ear=detailMesh(new THREE.ConeGeometry(.085,.28,7),deerFur,head,[side*.22,.12,-.015]);ear.rotation.z=side*-.85;ear.rotation.x=-.3;
+  const antler=new THREE.Group();antler.position.set(side*.12,.16,-.04);head.add(antler);
+  const stem=detailMesh(new THREE.CylinderGeometry(.025,.045,.42,7),antlerMat,antler,[side*.07,.2,0]);stem.rotation.z=side*-.28;
+  for(let j=0;j<3;j++){const tine=detailMesh(new THREE.CylinderGeometry(.012,.025,.2,6),antlerMat,antler,[side*(.11+j*.055),.28+j*.12,0]);tine.rotation.z=side*-.8;}
+ }
+ for(const sx of [-.19,.19])for(const sz of [-.38,.36]){
+  const leg=new THREE.Group();leg.position.set(sx,.67,sz);g.add(leg);legs.push(leg);
+  detailMesh(new THREE.CapsuleGeometry(.065,.34,4,8),deerFur,leg,[0,-.2,0],[1,1,1]);
+  detailMesh(new THREE.CylinderGeometry(.045,.052,.23,7),deerLight,leg,[0,-.47,.015]);
+  detailMesh(new THREE.CylinderGeometry(.055,.075,.095,7),hoofMat,leg,[0,-.62,.04]);
+ }
+ const tail=detailMesh(new THREE.ConeGeometry(.095,.28,7),deerLight,g,[0,1.02,-.66]);tail.rotation.x=-1.1;
+ g.position.set(x,terrainHeight(x,z),z);scene.add(g);animals.push({mesh:g,x,z,p:Math.random()*6,legs});
+}
+for(let i=0,placed=0;i<40&&placed<9;i++){const x=(Math.random()-.5)*78,z=(Math.random()-.5)*78;if(isLand(x,z,9)&&Math.hypot(x,z)>12){animal(x,z);placed++;}}
 const buildings=[];function campfire(x,z){const g=new THREE.Group();const base=new THREE.Mesh(new THREE.CylinderGeometry(.65,.72,.18,8),mat(0x77736b));base.position.y=.1;g.add(base);for(let i=0;i<3;i++){const log=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1.15,6),wood);log.rotation.z=Math.PI/2;log.rotation.y=i*Math.PI/3;log.position.y=.25;g.add(log)}const flame=new THREE.Mesh(new THREE.ConeGeometry(.28,.8,7),new THREE.MeshBasicMaterial({color:0xff9b32}));flame.position.y=.65;g.add(flame);const light=new THREE.PointLight(0xff8a32,1.5,9);light.position.y=1;g.add(light);g.position.set(x,0,z);scene.add(g);buildings.push(g)}
 function hut(x,z){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.BoxGeometry(3.5,2.2,3),wall);b.position.y=1.1;b.castShadow=true;g.add(b);const r=new THREE.Mesh(new THREE.ConeGeometry(2.7,1.5,4),roof);r.rotation.y=Math.PI/4;r.position.y=2.9;g.add(r);const d=new THREE.Mesh(new THREE.BoxGeometry(.75,1.4,.1),wood);d.position.set(0,.7,1.55);g.add(d);g.position.set(x,0,z);scene.add(g);buildings.push(g)}
 let yaw=0,pitch=.2,mx=0,my=0,vy=0,onGround=true,walk=0,targetResource=null,nearAnimal=null;const clock=new THREE.Clock();let toastTimer;
@@ -82,7 +131,7 @@ let lookId=null,lx=0,ly=0;renderer.domElement.addEventListener('pointerdown',e=>
 addEventListener('keydown',e=>{if(e.code==='KeyW'||e.code==='ArrowUp')my=-1;if(e.code==='KeyS'||e.code==='ArrowDown')my=1;if(e.code==='KeyA'||e.code==='ArrowLeft')mx=-1;if(e.code==='KeyD'||e.code==='ArrowRight')mx=1;if(e.code==='Space'&&onGround){vy=7;onGround=false}});addEventListener('keyup',e=>{if(['KeyW','ArrowUp','KeyS','ArrowDown'].includes(e.code))my=0;if(['KeyA','ArrowLeft','KeyD','ArrowRight'].includes(e.code))mx=0});
 function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw)),dir=forward.clone().multiplyScalar(-my).add(right.multiplyScalar(mx));if(dir.lengthSq()>1)dir.normalize();if(dir.lengthSq()>.001){player.position.addScaledVector(dir,4.8*dt);if(onGround)player.position.y=terrainHeight(player.position.x,player.position.z);player.rotation.y=Math.atan2(dir.x,dir.z);walk+=dt*9}else walk=0;vy-=18*dt;player.position.y+=vy*dt;const floorY=terrainHeight(player.position.x,player.position.z);if(player.position.y<floorY){player.position.y=floorY;vy=0;onGround=true}legs[0].rotation.x=Math.sin(walk)*.62;legs[1].rotation.x=-Math.sin(walk)*.62;arms[0].rotation.x=-Math.sin(walk)*.48;arms[1].rotation.x=Math.sin(walk)*.48;
 targetResource=nearest();const atWater=Math.hypot(player.position.x+18,player.position.z-12)<7;document.querySelector('#use').textContent=atWater?'ПИТЬ':targetResource?(targetResource.kind==='tree'?'РУБИТЬ':'ДОБЫТЬ'):'ДОБЫТЬ';
-for(const a of animals){a.p+=dt*.35;a.mesh.position.x=a.x+Math.sin(a.p)*1.6;a.mesh.position.z=a.z+Math.cos(a.p*.8)*1.6;a.mesh.rotation.y=Math.atan2(Math.cos(a.p),-Math.sin(a.p*.8))}
+for(const a of animals){a.p+=dt*.35;const moving=Math.sin(a.p*1.7);a.mesh.position.x=a.x+Math.sin(a.p)*1.6;a.mesh.position.z=a.z+Math.cos(a.p*.8)*1.6;a.mesh.position.y=terrainHeight(a.mesh.position.x,a.mesh.position.z);a.mesh.rotation.y=Math.atan2(Math.cos(a.p),-Math.sin(a.p*.8));for(let j=0;j<a.legs.length;j++)a.legs[j].rotation.x=(j%2?1:-1)*moving*.24;}
 state.elapsed+=dt;if(state.elapsed>45){state.elapsed=0;state.day++;}state.hunger=Math.max(0,state.hunger-dt*.11);state.thirst=Math.max(0,state.thirst-dt*.18);if(state.hunger===0||state.thirst===0)state.hp=Math.max(0,state.hp-dt*.8);if(state.hp<=0){toast('Ты потерял сознание. Перезапусти мир для новой попытки.');state.hp=1}
 const cycle=(Math.sin((state.elapsed/45)*Math.PI*2-Math.PI/2)+1)/2;sun.intensity=.35+cycle*2;scene.background.setRGB(.035+cycle*.55,.07+cycle*.63,.12+cycle*.65);scene.fog.color.copy(scene.background);
 const target=new THREE.Vector3(player.position.x,player.position.y+1.3,player.position.z),offset=new THREE.Vector3(Math.sin(yaw)*7,3.3+pitch*2,Math.cos(yaw)*7);camera.position.lerp(target.clone().add(offset),1-Math.pow(.001,dt));camera.lookAt(target);updateUI();renderer.render(scene,camera)}
