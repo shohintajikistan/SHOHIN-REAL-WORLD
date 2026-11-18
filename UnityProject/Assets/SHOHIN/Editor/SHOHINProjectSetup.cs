@@ -44,7 +44,7 @@ namespace Shohin.EditorTools
 
             var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             player.name = "Player_Prototype";
-            player.transform.position = new Vector3(-340, 16, 0);
+            player.transform.position = new Vector3(-340, 130, 0);
             player.transform.localScale = new Vector3(0.85f, 1f, 0.85f);
             Object.DestroyImmediate(player.GetComponent<CapsuleCollider>());
             var cc = player.AddComponent<CharacterController>();
@@ -67,8 +67,9 @@ namespace Shohin.EditorTools
             var profile = ScriptableObject.CreateInstance<VolumeProfile>();
             profile.Add<Tonemapping>().mode.Override(TonemappingMode.ACES);
             profile.Add<Bloom>().intensity.Override(0.18f);
-            profile.Add<ColorAdjustments>().postExposure.Override(0.1f);
-            profile.Add<ColorAdjustments>().contrast.Override(12f);
+            var colorAdjustments = profile.Add<ColorAdjustments>();
+            colorAdjustments.postExposure.Override(0.1f);
+            colorAdjustments.contrast.Override(12f);
             profile.Add<Vignette>().intensity.Override(0.22f);
             volume.sharedProfile = profile;
             AssetDatabase.CreateAsset(profile, Root + "/Settings/CinematicVolumeProfile.asset");
