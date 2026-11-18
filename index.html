@@ -31,14 +31,8 @@
 <div id="actions"><button class="act primary" id="use">ДОБЫТЬ</button><button class="act" id="jump">ПРЫЖОК</button></div>
 <div id="bottom"><button class="tab" id="bag">РЕСУРСЫ</button><button class="tab" id="craft">КРАФТ</button><button class="tab" id="build">СТРОИТЬ</button></div>
 <div id="panel"><button class="close" id="close">×</button><h3 id="paneltitle">РЕСУРСЫ</h3><div id="panelbody"></div></div><div id="toast"></div>
-<script src="./assets/vendor/three.min.js"></script>
 <script type="module">
-const THREE = window.THREE;
-if (!THREE) {
-  const loading = document.querySelector('#loading');
-  loading.innerHTML = '<div style="padding:24px;color:#eef8f1"><b style="color:#baf05b">SHOHIN</b><p>Не загрузилась библиотека 3D. Проверь подключение к интернету.</p></div>';
-  throw new Error('THREE library unavailable');
-}
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 const mount=document.querySelector('#game'),scene=new THREE.Scene();scene.background=new THREE.Color(0x9ac8d0);scene.fog=new THREE.Fog(0x9ac8d0,42,145);
 const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
