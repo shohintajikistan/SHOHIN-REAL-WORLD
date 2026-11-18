@@ -24,6 +24,12 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Bundle Three.js locally
+        run: |
+          mkdir -p assets/vendor
+          npm pack three@0.160.1 --pack-destination /tmp
+          tar -xzf /tmp/three-0.160.1.tgz -C /tmp
+          cp /tmp/package/build/three.min.js assets/vendor/three.min.js
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
