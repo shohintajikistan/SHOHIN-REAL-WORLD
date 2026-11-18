@@ -10,8 +10,8 @@
 #bars{position:fixed;top:68px;left:10px;width:148px;z-index:3;background:#071c16c9;border-radius:10px;padding:7px 9px;pointer-events:none}.barline{display:flex;justify-content:space-between;font-size:9px;margin:2px 0}.track{height:5px;background:#ffffff22;border-radius:5px;overflow:hidden}.fill{height:100%;width:100%;border-radius:5px}.health{background:#ef6868}.food{background:#e5b84e}.water{background:#54c5df}
 #hint{position:fixed;top:139px;left:50%;transform:translateX(-50%);font-size:10px;color:#e9f5ed;background:#071c16b8;padding:6px 10px;border-radius:20px;white-space:nowrap;pointer-events:none}
 #stick{position:fixed;left:18px;bottom:20px;width:112px;height:112px;border-radius:50%;background:#071c1677;border:1px solid #baf05b66;z-index:4;touch-action:none}#nub{position:absolute;width:46px;height:46px;left:32px;top:32px;border-radius:50%;background:#08a56cdd;border:2px solid #baf05b}
-#actions{position:fixed;right:14px;bottom:20px;z-index:5;display:flex;flex-direction:column;gap:8px}.act{width:64px;min-height:52px;border:1px solid #baf05b88;border-radius:15px;background:#0d3024ed;color:white;font-size:10px;font-weight:800;touch-action:manipulation}.act.primary{background:#087b53;border-color:#baf05b}.act:active{transform:scale(.96);background:#08a56c}
-#bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:4;display:flex;gap:6px;pointer-events:auto}.tab{border:1px solid #baf05b66;background:#071c16eF;color:#eef8f1;padding:9px 12px;border-radius:12px;font-size:10px;font-weight:700}
+#actions{position:fixed;right:14px;bottom:20px;z-index:5;display:flex;flex-direction:column;gap:8px}.act{width:58px;height:58px;min-height:58px;border:1px solid #baf05b88;border-radius:15px;background:#0d3024ed;color:white;font-size:10px;font-weight:800;touch-action:manipulation}.act.primary{background:#087b53;border-color:#baf05b}.act:active{transform:scale(.96);background:#08a56c}
+#bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:4;display:flex;gap:6px;pointer-events:auto}.tab{width:48px;height:48px;border:1px solid #baf05b66;background:#071c16ef;color:#eef8f1;padding:8px;border-radius:15px;display:grid;place-items:center} .uiicon{width:25px;height:25px;display:block;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.act .uiicon{width:27px;height:27px}.baricon{width:13px;height:13px;vertical-align:middle;margin-right:4px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #panel{position:fixed;z-index:8;left:10px;right:10px;bottom:145px;max-height:48vh;overflow:auto;background:#071c16f2;border:1px solid #08a56c99;border-radius:16px;padding:13px;display:none;backdrop-filter:blur(14px)}#panel.open{display:block}#panel h3{font-size:14px;color:var(--lime);margin:0 0 9px}#panel p{font-size:11px;color:#c6d9ce;margin:5px 0 10px}.items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.item{background:#0d3024;border:1px solid #426b59;border-radius:11px;padding:10px;text-align:left;color:white;font-size:11px}.item b{display:block;color:var(--lime);font-size:12px;margin-bottom:4px}.item:disabled{opacity:.38}.close{float:right;background:transparent;border:0;color:#baf05b;font-size:20px}
 #toast{position:fixed;left:50%;bottom:205px;transform:translateX(-50%);z-index:12;background:#0d3024ed;border:1px solid #baf05b66;border-radius:12px;padding:10px 13px;font-size:11px;display:none;max-width:86%;text-align:center}
 #loading{position:fixed;inset:0;z-index:20;background:#071c16;display:grid;place-items:center;text-align:center;transition:opacity .5s}#loading b{font-size:23px;letter-spacing:4px;color:var(--lime)}#loading span{display:block;color:#b8cfc2;font-size:10px;margin-top:10px;letter-spacing:2px}
@@ -20,17 +20,17 @@
 </head>
 <body>
 <div id="game"></div><div id="loading"><div><b>SHOHIN</b><span>ENTERING SURVIVAL WORLD...</span></div></div>
-<div id="top"><div class="brand"><b>SHOHIN REAL WORLD</b><small>SURVIVAL • EARLY ACCESS</small></div><div class="stats" id="inventory">Дерево 0 · Камень 0<br>Волокно 0 · День 1</div></div>
+<div id="top"><div class="brand"><b>SHOHIN REAL WORLD</b><small>SURVIVAL • EARLY ACCESS</small></div><div class="stats" id="inventory"><span>🪵 0　◆ 0</span><br><span>🍃 0　☀ 1</span></div></div>
 <div id="bars">
- <div class="barline"><span>ЗДОРОВЬЕ</span><b id="hpnum">100</b></div><div class="track"><div id="hpbar" class="fill health"></div></div>
- <div class="barline"><span>ГОЛОД</span><b id="foodnum">100</b></div><div class="track"><div id="foodbar" class="fill food"></div></div>
- <div class="barline"><span>ЖАЖДА</span><b id="waternum">100</b></div><div class="track"><div id="waterbar" class="fill water"></div></div>
+ <div class="barline"><span>♡</span><b id="hpnum">100</b></div><div class="track"><div id="hpbar" class="fill health"></div></div>
+ <div class="barline"><span>♨</span><b id="foodnum">100</b></div><div class="track"><div id="foodbar" class="fill food"></div></div>
+ <div class="barline"><span>◉</span><b id="waternum">100</b></div><div class="track"><div id="waterbar" class="fill water"></div></div>
 </div>
-<div id="hint">Подойди к дереву или камню и нажми «ДОБЫТЬ»</div>
+<div id="hint">Исследуй остров</div>
 <div id="stick"><div id="nub"></div></div>
-<div id="actions"><button class="act primary" id="use">ДОБЫТЬ</button><button class="act" id="jump">ПРЫЖОК</button></div>
-<div id="bottom"><button class="tab" id="bag">РЕСУРСЫ</button><button class="tab" id="craft">КРАФТ</button><button class="tab" id="build">СТРОИТЬ</button></div>
-<div id="panel"><button class="close" id="close">×</button><h3 id="paneltitle">РЕСУРСЫ</h3><div id="panelbody"></div></div><div id="toast"></div>
+<div id="actions"><button class="act primary" id="use" aria-label="Действие" title="Действие"><svg class="uiicon" viewBox="0 0 24 24"><path d="M14 3 5 14h6l-1 7 9-12h-6z"/></svg></button><button class="act" id="jump" aria-label="Прыжок" title="Прыжок"><svg class="uiicon" viewBox="0 0 24 24"><path d="M12 3v7m0-7 4 4m-4-4L8 7M5 14l7-4 7 4M7 21l5-7 5 7"/></svg></button></div>
+<div id="bottom"><button class="tab" id="bag" aria-label="Ресурсы" title="Ресурсы"><svg class="uiicon" viewBox="0 0 24 24"><path d="M4 7h16v14H4zM8 7V4h8v3M8 12h8M8 16h5"/></svg></button><button class="tab" id="craft" aria-label="Крафт" title="Крафт"><svg class="uiicon" viewBox="0 0 24 24"><path d="m14 6 4 4M4 20l9-9M14 4l6 6M3 21l5-1-4-4zM12 8l4-4"/></svg></button><button class="tab" id="build" aria-label="Строительство" title="Строительство"><svg class="uiicon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v11H3zM9 21v-7h6v7M3 10h18"/></svg></button></div>
+<button id="mapBtn" class="tab" style="position:fixed;right:12px;top:145px;z-index:6;background:#071c16eF" aria-label="Карта" title="Карта"><svg class="uiicon" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15m6-12v15"/><path d="m12 8 2 3-2 3-2-3z"/></svg></button><div id="mapPanel" style="display:none;position:fixed;z-index:9;right:12px;top:200px;width:220px;padding:12px;background:#071c16f2;border:1px solid #baf05b88;border-radius:18px;box-shadow:0 12px 40px #0009"><button id="mapClose" class="close">×</button><div style="font-size:11px;color:#baf05b;font-weight:800;margin:2px 0 8px">ОСТРОВ • КАРТА</div><canvas id="mapCanvas" width="400" height="400" style="width:100%;height:auto;border-radius:12px;background:#145e69"></canvas><div style="font-size:10px;color:#d5e8dc;margin-top:7px">▲ Ты　 ● Озеро　 · Лес</div></div><div id="panel"><button class="close" id="close">×</button><h3 id="paneltitle">РЕСУРСЫ</h3><div id="panelbody"></div></div><div id="toast"></div>
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 const mount=document.querySelector('#game'),scene=new THREE.Scene();scene.background=new THREE.Color(0x9ac8d0);scene.fog=new THREE.Fog(0x9ac8d0,42,145);
@@ -118,7 +118,7 @@ const buildings=[];function campfire(x,z){const g=new THREE.Group();const base=n
 function hut(x,z){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.BoxGeometry(3.5,2.2,3),wall);b.position.y=1.1;b.castShadow=true;g.add(b);const r=new THREE.Mesh(new THREE.ConeGeometry(2.7,1.5,4),roof);r.rotation.y=Math.PI/4;r.position.y=2.9;g.add(r);const d=new THREE.Mesh(new THREE.BoxGeometry(.75,1.4,.1),wood);d.position.set(0,.7,1.55);g.add(d);g.position.set(x,0,z);scene.add(g);buildings.push(g)}
 let yaw=0,pitch=.2,mx=0,my=0,vy=0,onGround=true,walk=0,targetResource=null,nearAnimal=null;const clock=new THREE.Clock();let toastTimer;
 function toast(s){const el=document.querySelector('#toast');el.textContent=s;el.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display='none',2300)}
-function updateUI(){document.querySelector('#inventory').innerHTML='Дерево '+state.wood+' · Камень '+state.stone+'<br>Волокно '+state.fiber+' · День '+state.day;for(const [k,v] of [['hp',state.hp],['food',state.hunger],['water',state.thirst]]){document.querySelector('#'+k+'bar').style.width=Math.max(0,v)+'%';document.querySelector('#'+k+'num').textContent=Math.max(0,Math.round(v))}}
+function updateUI(){document.querySelector('#inventory').innerHTML='<span>🪵 '+state.wood+'　◆ '+state.stone+'</span><br><span>🍃 '+state.fiber+'　☀ '+state.day+'</span>';for(const [k,v] of [['hp',state.hp],['food',state.hunger],['water',state.thirst]]){document.querySelector('#'+k+'bar').style.width=Math.max(0,v)+'%';document.querySelector('#'+k+'num').textContent=Math.max(0,Math.round(v))}}
 function nearest(){let best=null,dist=3.6;for(const r of resources){if(!r.alive)continue;const d=player.position.distanceTo(r.mesh.position);if(d<dist){dist=d;best=r}}return best}
 function gather(){if(Math.hypot(player.position.x+18,player.position.z-12)<7){state.thirst=100;toast('Ты напился у озера. Жажда восстановлена.');updateUI();return}const r=nearest();if(!r){toast('Подойди ближе к дереву или камню.');return}r.alive=false;scene.remove(r.mesh);if(r.kind==='tree'){state.wood+=state.axe?5:3;state.fiber+=2;toast('Добыто: древесина и волокно.')}else{state.stone+=state.pick?5:3;toast('Добыто: камень.')}updateUI()}
 function openPanel(type){const p=document.querySelector('#panel'),title=document.querySelector('#paneltitle'),body=document.querySelector('#panelbody');p.classList.add('open');if(type==='bag'){title.textContent='ТВОИ РЕСУРСЫ';body.innerHTML='<p>Древесина: '+state.wood+'<br>Камень: '+state.stone+'<br>Волокно: '+state.fiber+'<br>Еда: '+state.food+'<br>Инструменты: '+(state.axe?'Топор ':'')+(state.pick?'Кирка':'')+'</p><button class="item" id="eat" '+(state.food<1?'disabled':'')+'><b>СЪЕСТЬ ЕДУ</b>1 порция · восстановит голод</button><p>У озера можно пить воду. Ресурсы добываются в мире.</p>';document.querySelector('#eat').onclick=()=>{if(state.food>0){state.food--;state.hunger=Math.min(100,state.hunger+32);toast('Ты поел. Голод уменьшился.')}updateUI();openPanel('bag')}}
@@ -130,7 +130,7 @@ const stick=document.querySelector('#stick'),nub=document.querySelector('#nub');
 let lookId=null,lx=0,ly=0;renderer.domElement.addEventListener('pointerdown',e=>{if(e.clientX>innerWidth*.32){lookId=e.pointerId;lx=e.clientX;ly=e.clientY}});renderer.domElement.addEventListener('pointermove',e=>{if(lookId===e.pointerId){yaw-=(e.clientX-lx)*.005;pitch=Math.max(-.05,Math.min(.8,pitch+(e.clientY-ly)*.003));lx=e.clientX;ly=e.clientY}});renderer.domElement.addEventListener('pointerup',e=>{if(lookId===e.pointerId)lookId=null});renderer.domElement.addEventListener('pointercancel',()=>lookId=null);
 addEventListener('keydown',e=>{if(e.code==='KeyW'||e.code==='ArrowUp')my=-1;if(e.code==='KeyS'||e.code==='ArrowDown')my=1;if(e.code==='KeyA'||e.code==='ArrowLeft')mx=-1;if(e.code==='KeyD'||e.code==='ArrowRight')mx=1;if(e.code==='Space'&&onGround){vy=7;onGround=false}});addEventListener('keyup',e=>{if(['KeyW','ArrowUp','KeyS','ArrowDown'].includes(e.code))my=0;if(['KeyA','ArrowLeft','KeyD','ArrowRight'].includes(e.code))mx=0});
 function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;if(waterMat.userData.shader)waterMat.userData.shader.uniforms.uOceanTime.value=t;for(const cloud of clouds){cloud.position.x+=cloud.userData.speed*dt;if(cloud.position.x>100)cloud.position.x=-100;}const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)),right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw)),dir=forward.clone().multiplyScalar(-my).add(right.multiplyScalar(mx));if(dir.lengthSq()>1)dir.normalize();if(dir.lengthSq()>.001){player.position.addScaledVector(dir,4.8*dt);if(onGround)player.position.y=terrainHeight(player.position.x,player.position.z);player.rotation.y=Math.atan2(dir.x,dir.z);walk+=dt*9}else walk=0;vy-=18*dt;player.position.y+=vy*dt;const floorY=terrainHeight(player.position.x,player.position.z);if(player.position.y<floorY){player.position.y=floorY;vy=0;onGround=true}legs[0].rotation.x=Math.sin(walk)*.62;legs[1].rotation.x=-Math.sin(walk)*.62;arms[0].rotation.x=-Math.sin(walk)*.48;arms[1].rotation.x=Math.sin(walk)*.48;
-targetResource=nearest();const atWater=Math.hypot(player.position.x+18,player.position.z-12)<7;document.querySelector('#use').textContent=atWater?'ПИТЬ':targetResource?(targetResource.kind==='tree'?'РУБИТЬ':'ДОБЫТЬ'):'ДОБЫТЬ';
+targetResource=nearest();const atWater=Math.hypot(player.position.x+18,player.position.z-12)<7;document.querySelector('#use').innerHTML=atWater?'<svg class="uiicon" viewBox="0 0 24 24"><path d="M12 3C9 8 6 11 6 15a6 6 0 0 0 12 0c0-4-3-7-6-12z"/></svg>':targetResource?'<svg class="uiicon" viewBox="0 0 24 24"><path d="m14 3 7 7-3 3-7-7zM3 21l8-8M5 15l4 4"/></svg>':'<svg class="uiicon" viewBox="0 0 24 24"><path d="M14 3 5 14h6l-1 7 9-12h-6z"/></svg>';
 for(const a of animals){a.p+=dt*.35;const moving=Math.sin(a.p*1.7);a.mesh.position.x=a.x+Math.sin(a.p)*1.6;a.mesh.position.z=a.z+Math.cos(a.p*.8)*1.6;a.mesh.position.y=terrainHeight(a.mesh.position.x,a.mesh.position.z);a.mesh.rotation.y=Math.atan2(Math.cos(a.p),-Math.sin(a.p*.8));for(let j=0;j<a.legs.length;j++)a.legs[j].rotation.x=(j%2?1:-1)*moving*.24;}
 state.elapsed+=dt;if(state.elapsed>45){state.elapsed=0;state.day++;}state.hunger=Math.max(0,state.hunger-dt*.11);state.thirst=Math.max(0,state.thirst-dt*.18);if(state.hunger===0||state.thirst===0)state.hp=Math.max(0,state.hp-dt*.8);if(state.hp<=0){toast('Ты потерял сознание. Перезапусти мир для новой попытки.');state.hp=1}
 const cycle=(Math.sin((state.elapsed/45)*Math.PI*2-Math.PI/2)+1)/2;sun.intensity=.35+cycle*2;scene.background.setRGB(.035+cycle*.55,.07+cycle*.63,.12+cycle*.65);scene.fog.color.copy(scene.background);
@@ -246,6 +246,29 @@ for(let i=0;i<7;i++){
  base.position.set(x,-2.1,z);base.scale.y=.8;base.receiveShadow=true;scene.add(base);
  const crown=new THREE.Mesh(new THREE.ConeGeometry(8+Math.random()*5,8+Math.random()*7,8),farIslandMat);
  crown.position.set(x,2.2,z);crown.rotation.y=Math.random()*6.28;scene.add(crown);
+}
+
+
+const mapPanel=document.querySelector('#mapPanel'),mapCanvas=document.querySelector('#mapCanvas'),mapCtx=mapCanvas.getContext('2d');
+document.querySelector('#mapBtn').onclick=()=>{mapPanel.style.display=mapPanel.style.display==='block'?'none':'block';drawMap()};
+document.querySelector('#mapClose').onclick=()=>mapPanel.style.display='none';
+function drawMap(){
+ const c=mapCtx,w=400,h=400,cx=200,cy=200,scale=3.05;
+ c.clearRect(0,0,w,h);c.fillStyle='#176b78';c.fillRect(0,0,w,h);
+ // subtle sea depth rings
+ for(let r=175;r>20;r-=28){c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.strokeStyle='rgba(150,225,220,.12)';c.lineWidth=2;c.stroke()}
+ c.save();c.translate(cx,cy);c.beginPath();
+ for(let i=0;i<=240;i++){const a=i/240*Math.PI*2,r=islandRadius(a)*scale,x=Math.cos(a)*r,y=Math.sin(a)*r;if(i===0)c.moveTo(x,y);else c.lineTo(x,y)}
+ c.closePath();c.fillStyle='#507f4b';c.fill();c.lineWidth=7;c.strokeStyle='#d7c18d';c.stroke();
+ // rough elevation shading
+ c.save();c.clip();for(let i=0;i<14;i++){c.beginPath();c.ellipse(28,-35,40+i*5,22+i*4,-.35,0,Math.PI*2);c.fillStyle='rgba(36,75,48,.09)';c.fill()}
+ c.fillStyle='#3b9ba5';c.beginPath();c.arc(-18*scale,12*scale,6*scale,0,Math.PI*2);c.fill();
+ c.fillStyle='#b9d7a0';for(const r of resources){if(!r.alive)continue;const x=r.mesh.position.x*scale,y=r.mesh.position.z*scale;c.globalAlpha=.42;c.fillRect(x-1,y-1,2,2)}c.globalAlpha=1;
+ c.restore();
+ // player arrow
+ const px=player.position.x*scale,pz=player.position.z*scale;c.translate(px,pz);c.rotate(-yaw);c.beginPath();c.moveTo(0,-13);c.lineTo(9,10);c.lineTo(0,6);c.lineTo(-9,10);c.closePath();c.fillStyle='#baf05b';c.fill();c.lineWidth=3;c.strokeStyle='#09251b';c.stroke();
+ c.restore();
+ c.fillStyle='#eff8ed';c.font='bold 15px system-ui';c.fillText('N',cx-6,24);
 }
 
 // Optional external Blender GLB loading is disabled for reliable startup.
