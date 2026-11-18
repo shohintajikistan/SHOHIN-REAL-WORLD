@@ -37,11 +37,11 @@ func _draw() -> void:
 	var size := get_viewport_rect().size
 	var font := get_theme_default_font()
 	var base := Vector2(size.x * 0.16, size.y * 0.80)
-	draw_rect(Rect2(14, 12, minf(size.x - 28.0, 470.0), 62), Color(0.015, 0.055, 0.04, 0.72), true, 10.0)
+	draw_rect(Rect2(14, 12, minf(size.x - 28.0, 470.0), 62), Color(0.015, 0.055, 0.04, 0.72), true)
 	draw_string(font, Vector2(26, 36), "SHOHIN  •  AFTER THE FALL", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color(0.75, 0.95, 0.72))
 	draw_string(font, Vector2(26, 59), status_text, HORIZONTAL_ALIGNMENT_LEFT, minf(size.x - 52.0, 440.0), 12, Color.WHITE)
 	if message_text != "":
-		draw_rect(Rect2(size.x * 0.24, size.y * 0.17, size.x * 0.52, 42), Color(0.02, 0.09, 0.06, 0.82), true, 8.0)
+		draw_rect(Rect2(size.x * 0.24, size.y * 0.17, size.x * 0.52, 42), Color(0.02, 0.09, 0.06, 0.82), true)
 		draw_string(font, Vector2(size.x * 0.26, size.y * 0.17 + 26), message_text, HORIZONTAL_ALIGNMENT_CENTER, size.x * 0.48, 14, Color.WHITE)
 	draw_circle(base, 62.0, Color(0.02, 0.08, 0.06, 0.38))
 	draw_arc(base, 62.0, 0.0, TAU, 48, Color(0.65, 0.88, 0.72, 0.58), 3.0)
