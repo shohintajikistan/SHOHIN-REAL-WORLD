@@ -12,7 +12,8 @@ var camera_pitch := 0.16
 var hud: Control
 var camera_pivot: Node3D
 var body_mesh: Node3D
-var inventory := {"wood": 0, "stone": 0, "fiber": 0}
+var inventory := {"wood": 0, "stone": 0, "fiber": 0, "stick": 0, "berries": 0}
+var has_axe := false
 var health := 100.0
 var hunger := 100.0
 var thirst := 100.0
@@ -129,6 +130,8 @@ func _on_action_requested(action: String) -> void:
 			_build_structure("raft")
 		"craft":
 			_craft_tool()
+		"fire":
+			_build_campfire()
 		"jump":
 			if is_on_floor():
 				velocity.y = JUMP_VELOCITY
@@ -169,12 +172,33 @@ func _gather_nearest() -> void:
 	_show_message("Собрано: %s × %d" % [kind, amount])
 
 func _craft_tool() -> void:
-	if int(inventory.wood) >= 3 and int(inventory.stone) >= 2:
+	if has_axe:
+		_show_message("Каменный топор уже изготовлен")
+	elif int(inventory.wood) >= 3 and int(inventory.stone) >= 2 and int(inventory.fiber) >= 1:
 		inventory.wood -= 3
 		inventory.stone -= 2
-		_show_message("Каменный топор создан. Сбор ресурсов станет быстрее.")
+		inventory.fiber -= 1
+		has_axe = true
+		_show_message("Каменный топор изготовлен")
 	else:
-		_show_message("Для топора нужно: 3 дерева и 2 камня")
+		_show_message("Топор: 3 дерева, 2 камня и 1 волокно")
+
+func _build_campfire() -> void:
+	if int(inventory.wood) < 4 or int(inventory.stone) < 3:
+		_show_message("Костёр: нужно 4 дерева и 3 камня")
+		return
+	inventory.wood -= 4
+	inventory.stone -= 3
+	var fire := MeshInstance3D.new()
+	var flame := SphereMesh.new()
+	flame.radius = 0.55
+	flame.height = 1.2
+	fire.mesh = flame
+	fire.material_override = _mat(Color(1.0, 0.28, 0.035), 0.35)
+	fire.position = global_position + -global_transform.basis.z * 3.0 + Vector3.UP * 0.65
+	get_tree().current_scene.add_child(fire)
+	_show_message("Костёр построен")
+	_update_hud()
 
 func _build_structure(kind: String) -> void:
 	if kind == "hut":
@@ -243,7 +267,7 @@ func _show_message(message: String) -> void:
 
 func _update_hud() -> void:
 	if hud:
-		hud.set_status("HP %d  |  Еда %d  |  Вода %d\nДерево %d  Камень %d  |  Постройки %d" % [int(health), int(hunger), int(thirst), int(inventory.wood), int(inventory.stone), built_count])
+		hud.set_status("HP %d  |  Еда %d  |  Вода %d\nДерево %d  Камень %d  Волокно %d  Ветки %d  Ягоды %d  |  Постройки %d" % [int(health), int(hunger), int(thirst), int(inventory.wood), int(inventory.stone), int(inventory.fiber), int(inventory.stick), int(inventory.berries), built_count])
 
 func _physics_process(delta: float) -> void:
 	survival_clock += delta
