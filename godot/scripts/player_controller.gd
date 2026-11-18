@@ -129,6 +129,9 @@ func _on_action_requested(action: String) -> void:
 			_build_structure("raft")
 		"craft":
 			_craft_tool()
+		"jump":
+			if is_on_floor():
+				velocity.y = JUMP_VELOCITY
 		"rest":
 			hunger = minf(100.0, hunger + 8.0)
 			thirst = minf(100.0, thirst + 5.0)
