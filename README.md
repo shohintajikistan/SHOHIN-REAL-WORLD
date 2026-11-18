@@ -20,3 +20,8 @@ This is an early prototype. It uses procedural objects and simple wandering beha
 
 ## Project
 SHOHIN TAJIKISTAN
+
+
+## Godot 4 migration
+
+A new Godot 4.4.1 project is being prepared in [`godot/`](godot/README.md). The existing browser prototype remains available while the Godot project is validated. The first Godot milestone generates a 4 km × 4 km island foundation with ocean, varied terrain and mixed forest zones. GitHub Actions validates the project automatically. Android export and the playable mobile controls will be added after this foundation passes validation.
