@@ -1,0 +1,55 @@
+name: Build Unity 6 WebGL and publish to GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["unity6-urp"]
+    paths:
+      - "UnityProject/**"
+      - ".github/workflows/unity-webgl.yml"
+      - "README.md"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: shohin-unity-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build with Unity 6
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: UnityProject
+          unityVersion: 6000.0.32f1
+          targetPlatform: WebGL
+          buildName: SHOHIN-REAL-WORLD
+          buildsPath: Build
+          customParameters: -executeMethod Shohin.EditorTools.WebGLBuild.Build
+
+      - name: Verify WebGL output
+        run: test -s Build/WebGL/index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: Build/WebGL
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
