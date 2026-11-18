@@ -3,7 +3,7 @@ extends Node3D
 # SHOHIN REAL WORLD — first Godot 4 island foundation.
 # Island dimensions: 4,000 x 4,000 metres.
 const ISLAND_SIZE := 4000.0
-const GRID := 128
+const GRID := 64
 const WATER_LEVEL := -7.0
 
 var terrain_noise := FastNoiseLite.new()
@@ -113,16 +113,16 @@ func _build_forests() -> void:
 	var pines := MultiMesh.new()
 	pines.transform_format = MultiMesh.TRANSFORM_3D
 	pines.mesh = pine_mesh
-	pines.instance_count = 900
+	pines.instance_count = 520
 	var tropics := MultiMesh.new()
 	tropics.transform_format = MultiMesh.TRANSFORM_3D
 	tropics.mesh = tropical_mesh
-	tropics.instance_count = 420
+	tropics.instance_count = 220
 	var pine_i := 0
 	var tropic_i := 0
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 480021
-	for i in range(2200):
+	for i in range(1100):
 		var x := rng.randf_range(-1850.0, 1850.0)
 		var z := rng.randf_range(-1850.0, 1850.0)
 		var radius := Vector2(x, z).length()
@@ -192,7 +192,7 @@ func _tree_material(color: Color) -> StandardMaterial3D:
 func _build_resource_props() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 20261119
-	for i in range(34):
+	for i in range(20):
 		var x := rng.randf_range(-900.0, 900.0)
 		var z := rng.randf_range(-900.0, 900.0)
 		var y := _height_at(x, z)
@@ -210,7 +210,7 @@ func _build_resource_props() -> void:
 		stone.roughness = 1.0
 		rock.material_override = stone
 		add_child(rock)
-	for i in range(18):
+	for i in range(10):
 		var x := rng.randf_range(-1000.0, 1000.0)
 		var z := rng.randf_range(-1000.0, 1000.0)
 		var y := _height_at(x, z)
