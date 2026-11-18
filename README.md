@@ -1,40 +1,20 @@
-# SHOHIN REAL WORLD
+# SHOHIN REAL WORLD — Unity 6
 
-**SHOHIN REAL WORLD** is a mobile-first 3D survival game prototype built with Three.js.
+**Единственный игровой движок проекта: Unity 6 + URP.** Three.js и Godot удалены из этой ветки.
 
-## Play
+## Игровой проект
+Unity исходники находятся в `UnityProject/`. Открой эту папку в Unity Hub с Unity 6.0 LTS. Команда меню **SHOHIN → Create Cinematic Survival Prototype** создаёт тестовую сцену: два больших острова, океан, камеру, прототип персонажа и базовые системы выживания.
 
+## WebGL для телефона
+Цель проекта — браузерная сборка Unity WebGL, публикуемая через GitHub Pages. Workflow **Build Unity 6 WebGL** собирает проект и публикует результат. Для запуска сборки в настройках репозитория GitHub Actions нужны секреты Unity Personal:
+- `UNITY_LICENSE` — содержимое файла лицензии Unity;
+- `UNITY_EMAIL` — email аккаунта Unity;
+- `UNITY_PASSWORD` — пароль аккаунта Unity.
+
+Без этих секретов GitHub Actions не сможет запустить лицензированный Unity Editor. После успешной сборки страница игры будет доступна по адресу:
 https://shohintajikistan.github.io/SHOHIN-REAL-WORLD/
 
-GitHub Pages publishes the browser game directly from `index.html`. The active game runtime is Three.js; the old Godot project files are retained in the repository as an archive and are not used by the website deployment.
+## Текущее состояние
+Это начальный Unity-прототип, а не готовая игра. Персонаж пока капсула, рельеф процедурный, а океан — базовая анимация волн. Нужны финальная humanoid-модель и анимации, детализированные материалы, растительность, затонувший корабль, мобильный HUD и оптимизация WebGL.
 
-## Current gameplay
-
-- Procedural outdoor island environment with forest, lake, rocks and wildlife.
-- Third-person player, follow camera, touch joystick, camera drag and jump.
-- Survival meters: health, hunger and thirst.
-- Gather wood, stone and fiber; collect food.
-- Craft a stone axe and pickaxe.
-- Build a campfire and a basic hut.
-- Daylight cycle and ambient world atmosphere.
-
-## Controls
-
-- Touch joystick: move.
-- Drag the open 3D view: rotate the camera.
-- Jump: jump.
-- Gather: collect nearby resources or drink at the lake.
-- Resources, Craft and Build: open the corresponding panels.
-
-## Technology
-
-- Three.js 0.180.0 loaded as an ES module from jsDelivr.
-- Procedural geometry and materials for the current prototype.
-- GitHub Actions + GitHub Pages for publishing.
-- No server, account, or API key is required for the current prototype. An internet connection is required to load Three.js from the CDN.
-
-## Development notes
-
-This is an early playable prototype, not a finished AAA-scale simulation. The repository is being migrated to a Three.js-first workflow. The previous Godot source is retained for reference only; it is no longer built or published by the Pages workflow.
-
-Project: **SHOHIN TAJIKISTAN**.
+Проект SHOHIN TAJIKISTAN.
