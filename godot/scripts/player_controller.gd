@@ -1,9 +1,10 @@
 extends CharacterBody3D
 
-const WALK_SPEED := 7.0
-const RUN_SPEED := 11.0
+const WALK_SPEED := 6.5
+const RUN_SPEED := 10.0
 const JUMP_VELOCITY := 6.5
 const LOOK_SENSITIVITY := 0.004
+const INTERACT_DISTANCE := 5.0
 
 var move_input := Vector2.ZERO
 var camera_yaw := 0.0
@@ -11,7 +12,12 @@ var camera_pitch := 0.16
 var hud: Control
 var camera_pivot: Node3D
 var body_mesh: Node3D
-var walk_time := 0.0
+var inventory := {"wood": 0, "stone": 0, "fiber": 0}
+var health := 100.0
+var hunger := 100.0
+var thirst := 100.0
+var survival_clock := 0.0
+var built_count := 0
 
 func _ready() -> void:
 	name = "Player"
@@ -92,7 +98,6 @@ func _build_camera() -> void:
 	camera.current = true
 	camera.fov = 72.0
 	camera_pivot.add_child(camera)
-	camera.position = Vector3(0, 2.1, 6.8)
 	camera_pivot.rotation.y = camera_yaw
 	camera.rotation.x = camera_pitch
 
@@ -102,7 +107,8 @@ func _build_hud() -> void:
 	get_tree().root.add_child.call_deferred(hud)
 	hud.move_changed.connect(_on_move_changed)
 	hud.look_changed.connect(_on_look_changed)
-	hud.jump_requested.connect(_on_jump_requested)
+	hud.action_requested.connect(_on_action_requested)
+	_update_hud()
 
 func _on_move_changed(value: Vector2) -> void:
 	move_input = value
@@ -113,11 +119,138 @@ func _on_look_changed(delta: Vector2) -> void:
 	camera_pivot.rotation.y = camera_yaw
 	camera_pivot.get_child(0).rotation.x = camera_pitch
 
-func _on_jump_requested() -> void:
-	if is_on_floor():
-		velocity.y = JUMP_VELOCITY
+func _on_action_requested(action: String) -> void:
+	match action:
+		"gather":
+			_gather_nearest()
+		"hut":
+			_build_structure("hut")
+		"raft":
+			_build_structure("raft")
+		"craft":
+			_craft_tool()
+		"rest":
+			hunger = minf(100.0, hunger + 8.0)
+			thirst = minf(100.0, thirst + 5.0)
+	_update_hud()
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_E:
+			_gather_nearest()
+		elif event.keycode == KEY_1:
+			_build_structure("hut")
+		elif event.keycode == KEY_2:
+			_build_structure("raft")
+		elif event.keycode == KEY_3:
+			_craft_tool()
+		_update_hud()
+
+func _gather_nearest() -> void:
+	var nearest: Node3D = null
+	var nearest_distance := INTERACT_DISTANCE
+	for item in get_tree().get_nodes_in_group("gatherable"):
+		if not is_instance_valid(item):
+			continue
+		var distance := global_position.distance_to(item.global_position)
+		if distance < nearest_distance:
+			nearest = item
+			nearest_distance = distance
+	if nearest == null:
+		_show_message("Подойди ближе к дереву или камням")
+		return
+	var kind: String = nearest.get_meta("resource_type", "wood")
+	var amount: int = nearest.get_meta("amount", 1)
+	inventory[kind] = int(inventory.get(kind, 0)) + amount
+	nearest.queue_free()
+	_show_message("Собрано: %s × %d" % [kind, amount])
+
+func _craft_tool() -> void:
+	if int(inventory.wood) >= 3 and int(inventory.stone) >= 2:
+		inventory.wood -= 3
+		inventory.stone -= 2
+		_show_message("Каменный топор создан. Сбор ресурсов станет быстрее.")
+	else:
+		_show_message("Для топора нужно: 3 дерева и 2 камня")
+
+func _build_structure(kind: String) -> void:
+	if kind == "hut":
+		if int(inventory.wood) < 8 or int(inventory.stone) < 3:
+			_show_message("Для дома нужно: 8 дерева и 3 камня")
+			return
+		inventory.wood -= 8
+		inventory.stone -= 3
+		_place_hut()
+		_show_message("Убежище построено. Теперь здесь можно укрыться.")
+	else:
+		if int(inventory.wood) < 12:
+			_show_message("Для плота нужно 12 дерева")
+			return
+		inventory.wood -= 12
+		_place_raft()
+		_show_message("Плот готов. Следующая цель — исследовать берег.")
+	built_count += 1
+
+func _place_hut() -> void:
+	var root := Node3D.new()
+	root.name = "PlayerShelter"
+	root.position = global_position + -global_transform.basis.z * 5.0
+	get_tree().current_scene.add_child(root)
+	var wood_mat := _mat(Color(0.30, 0.18, 0.09), 1.0)
+	var wall := BoxMesh.new()
+	wall.size = Vector3(4.0, 2.5, 0.22)
+	for side in range(3):
+		var part := MeshInstance3D.new()
+		part.mesh = wall
+		part.material_override = wood_mat
+		part.position = Vector3(0, 1.25, -1.8 if side == 0 else 1.8)
+		if side == 1:
+			part.rotation.y = PI * 0.5
+			part.position = Vector3(-2.0, 1.25, 0)
+		if side == 2:
+			part.rotation.y = PI * 0.5
+			part.position = Vector3(2.0, 1.25, 0)
+		root.add_child(part)
+	var roof := MeshInstance3D.new()
+	var roof_mesh := PrismMesh.new()
+	roof_mesh.size = Vector3(4.6, 1.8, 4.6)
+	roof.mesh = roof_mesh
+	roof.position.y = 3.1
+	roof.material_override = _mat(Color(0.16, 0.22, 0.12), 1.0)
+	root.add_child(roof)
+
+func _place_raft() -> void:
+	var root := Node3D.new()
+	root.name = "PlayerRaft"
+	root.position = global_position + -global_transform.basis.z * 5.0
+	get_tree().current_scene.add_child(root)
+	var wood_mat := _mat(Color(0.36, 0.22, 0.11), 0.9)
+	for i in range(5):
+		var plank := MeshInstance3D.new()
+		var mesh := BoxMesh.new()
+		mesh.size = Vector3(0.48, 0.22, 3.8)
+		plank.mesh = mesh
+		plank.position.x = (float(i) - 2.0) * 0.5
+		plank.material_override = wood_mat
+		root.add_child(plank)
+
+func _show_message(message: String) -> void:
+	if hud:
+		hud.set_message(message)
+
+func _update_hud() -> void:
+	if hud:
+		hud.set_status("HP %d  |  Еда %d  |  Вода %d\nДерево %d  Камень %d  |  Постройки %d" % [int(health), int(hunger), int(thirst), int(inventory.wood), int(inventory.stone), built_count])
 
 func _physics_process(delta: float) -> void:
+	survival_clock += delta
+	if survival_clock >= 12.0:
+		survival_clock = 0.0
+		hunger = maxf(0.0, hunger - 1.0)
+		thirst = maxf(0.0, thirst - 1.5)
+		if hunger <= 0.0 or thirst <= 0.0:
+			health = maxf(0.0, health - 2.0)
+		_update_hud()
 	var keyboard := Vector2.ZERO
 	keyboard.x = float(Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT)) - float(Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT))
 	keyboard.y = float(Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN)) - float(Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP))
@@ -132,7 +265,6 @@ func _physics_process(delta: float) -> void:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 		body_mesh.rotation.y = lerp_angle(body_mesh.rotation.y, atan2(-direction.x, -direction.z), delta * 9.0)
-		walk_time += delta * 9.0
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, WALK_SPEED * 5.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, WALK_SPEED * 5.0 * delta)
