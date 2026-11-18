@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using Shohin.Survival;
+using Shohin.UI;
 
 namespace Shohin.EditorTools
 {
@@ -85,6 +86,7 @@ namespace Shohin.EditorTools
 
             var clock = new GameObject("GameClock").AddComponent<GameClock>();
             player.GetComponent<SurvivorVitals>().clock = clock;
+            MobileSurvivalHUD.Create(player.transform, camRig);
 
             var volumeObject = new GameObject("Cinematic_PostProcessing");
             var volume = volumeObject.AddComponent<Volume>();
