@@ -235,6 +235,34 @@ func _build_resource_props() -> void:
 		log_mesh.bottom_radius = 0.24
 		log_mesh.height = rng.randf_range(2.5, 4.5)
 		_make_gatherable("Driftwood", "wood", 3, log_mesh, Vector3(x, y + 0.3, z), Color(0.27, 0.16, 0.085))
+	for i in range(30):
+		var x := rng.randf_range(-1100.0, 1100.0)
+		var z := rng.randf_range(-1100.0, 1100.0)
+		var y := _height_at(x, z)
+		if y > WATER_LEVEL + 14.0:
+			var m := SphereMesh.new()
+			m.radius = 0.24
+			m.height = 0.45
+			_make_gatherable("Wild berries", "berries", 2, m, Vector3(x, y + 0.3, z), Color(0.62, 0.07, 0.12))
+	for i in range(30):
+		var x := rng.randf_range(-1100.0, 1100.0)
+		var z := rng.randf_range(-1100.0, 1100.0)
+		var y := _height_at(x, z)
+		if y > WATER_LEVEL + 14.0:
+			var m := CylinderMesh.new()
+			m.top_radius = 0.06
+			m.bottom_radius = 0.08
+			m.height = 1.2
+			_make_gatherable("Fallen branch", "stick", 2, m, Vector3(x, y + 0.25, z), Color(0.34, 0.20, 0.10))
+	for i in range(24):
+		var x := rng.randf_range(-1100.0, 1100.0)
+		var z := rng.randf_range(-1100.0, 1100.0)
+		var y := _height_at(x, z)
+		if y > WATER_LEVEL + 14.0:
+			var m := SphereMesh.new()
+			m.radius = 0.2
+			m.height = 0.38
+			_make_gatherable("Plant fibers", "fiber", 2, m, Vector3(x, y + 0.25, z), Color(0.55, 0.48, 0.22))
 
 func _spawn_player() -> void:
 	var player := CharacterBody3D.new()
